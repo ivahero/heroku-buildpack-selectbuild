@@ -1,13 +1,23 @@
 #!/usr/bin/env bash
-
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 
-if [ -f $ENV_DIR/PROCFILE_PATH ]; then
-  PROCFILE_PATH=`cat $ENV_DIR/PROCFILE_PATH`
-  mv $BUILD_DIR/$PROCFILE_PATH $BUILD_DIR/Procfile
-  echo "-----> Using $PROCFILE_PATH as Procfile"
+ENV_PROFILE_DIR="$ENV_DIR/SELECTBUILD_DIR"
+[ -f $ENV_PROFILE_DIR ] && PROFILE_DIR=$(cat $ENV_PROFILE_DIR)
+
+if [ -n "$PROFILE_DIR" ]; then
+  FOUND=0
+  for NAME in Procfile Aptfile requirements.txt scrapy.cfg ; do
+    if [ -f $BUILD_DIR/$PROFILE_DIR/$NAME ]; then
+      echo "-----> Using $PROFILE_DIR/$NAME as main $NAME"
+      cp $BUILD_DIR/$PROFILE_DIR/$NAME $BUILD_DIR/$NAME
+      FOUND=1
+    fi
+  done
+  if [ $FOUND = 0 ]; then
+    echo "-----> Directory $PROFILE_DIR should contain Procfile, Aptfile, requirements.txt or scrapy.cfg!"
+  fi
 else
-  echo "-----> PROCFILE_PATH not set in environment, doing nothing."
+  echo "-----> SELECTBUILD_DIR is not set. Exiting."
 fi

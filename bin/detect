@@ -1,4 +1,3 @@
 #!/usr/bin/env bash
-
-echo "Selectable Procfile"
+echo "Select build profile"
 exit 0
